@@ -128,7 +128,7 @@ Note: The current state of development: pre-release.
 <ol>
 	<li>&nbsp;&quot;massive-config&quot; - This will tell the plugin that you are wanting to use its functionality for the<span style="white-space:pre"> </span>desired html tag you are building.</li>
 	<li>&quot;loadcontrol&quot; - This will tell the plugin that you are wanting it to read the values in the data tags and use them to load data into a table/fieldset/etc.&nbsp; You CAN load multiple controls on a page you will just need to add this class to each control you wish to load.</li>
-	<li>&quot;searchable_select&quot; - This is a class that can be added to a select control in html.&nbsp; This will allow you to type into a select control and narrow results based on what you are typing.&nbsp; Kind of has the same features as a radComboBox but not as extensive.</li>
+	<li>&quot;searchable_select&quot; - This is a class that can be added to a select control in html.&nbsp; This will allow you to type into a select control and narrow results based on what you are typing.&nbsp; Kind of has the same features as a radComboBox but not as extensive. (select2.js - https://cdnjs.com/libraries/select2)</li>
 	<li>&quot;preventDefault&quot; - This can be added to a button when you don&#39;t want the page to recognize an enter press.</li>
 </ol>
 
