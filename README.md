@@ -1,7 +1,7 @@
 <h2><strong>Massive Plugin </strong></h2>
 <h3>Documentation/Usage</h3>
 <p>
-Massive plugin is a jquery plugin that is used in unison with <a href='https://github.com/FransBouma/Massive'>Massive ORM</a>.  
+Massive plugin is the beginning of a jquery plugin that will be/is used in unison with <a href='https://github.com/FransBouma/Massive'>Massive ORM</a>.  
 It allows a user to build complex applications by binding data directly to the page using data attribute tags.
 
 Note: The current state of development is in development.
