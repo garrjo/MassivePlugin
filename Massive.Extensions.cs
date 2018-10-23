@@ -15,7 +15,7 @@ using System.Configuration;
 
 namespace Massive.Extensions
 {
-    [WebService(Namespace = "http://wehco.com/")]
+    [WebService(Namespace = "http://www.1001skins.com/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.Web.Script.Services.ScriptService]
     #region WebMethods
