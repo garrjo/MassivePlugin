@@ -4,7 +4,11 @@
 Massive plugin is the beginning of a jquery plugin that will be/is used in unison with <a href='https://github.com/FransBouma/Massive'>Massive ORM</a>.  
 It allows a user to build complex applications by binding data directly to the page using data attribute tags.
 
-Note: The current state of development is in development.
+Note: The current state of development: pre-release.  
+1.  Convert to jQuery Plugin
+2.  Switch to Rest WCF Service 
+3.  Clean up Data Attributes
+4.  More likely...
 </p>
 
 <br/>
