@@ -1,8 +1,12 @@
 <h2><strong>Massive Plugin </strong></h2>
 <h3>Documentation/Usage</h3>
 <p>
-Massive plugin is a jquery plugin that is used in unison with Massive ORM.  
-It allows a user to build complex applications with html.</p>
+Massive plugin is a jquery plugin that is used in unison with <a href='https://github.com/FransBouma/Massive'>Massive ORM</a>.  
+It allows a user to build complex applications by binding data directly to the page using data attribute tags.
+
+Note: The current state of development is in development.
+</p>
+
 <br/>
 <p>It is recommended to use an Token/CSRF/Encryption/User Validation scheme when using this method of interacting with your data. Even using domain level awareness on your Webservices is preferred to prevent direct user interaction.  In my case I use user validation tokens and domain validation to prevent XSRF/CSRF etc.</p>
 <br/>
