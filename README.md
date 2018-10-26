@@ -2,7 +2,7 @@
 <h3>Documentation/Usage</h3>
 <p>
 Massive plugin is the beginning of a jquery plugin that will be/is used in unison with <a href='https://github.com/FransBouma/Massive'>Massive ORM</a>.  
-It allows a user to build complex applications by binding data directly to the page using data attribute tags.
+It allows a user to build complex applications by binding data directly to the page using data attribute tags through HTML.
 
 Note: The current state of development: pre-release.  
 1.  Convert to jQuery Plugin
