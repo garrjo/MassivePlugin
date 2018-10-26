@@ -175,7 +175,6 @@ $(document).ready(function () {
     };
     //throw to a table
     function DataToTable(data, config) {
-        $("#loadingModal").hide();
         __config = config;
         var data = $.parseJSON(data.d);
         var placement = $("#" + config.data("results"));
@@ -275,6 +274,7 @@ $(document).ready(function () {
     function MassiveAjax(fieldstr, config, callback) {
         var placement = $("#" + config.data("results"));
 
+        /*You can set up your own static variables to pull from*/
         var CurrentUserId = $("#CurrentUserId").val();
         var CurrentUser = $("#CurrentUser").val();
         var CreatedBy = $("#CreatedBy").val();
@@ -327,7 +327,7 @@ $(document).ready(function () {
             var json_data = JSON.stringify({ "rform": "[{" + JSON.stringify($("form").serialize()) + "}]", "table": table });
         }
         return $.ajax({
-            url: "/assets/services/wsWebServices.asmx/" + method,
+            url: "/wsWebServices.asmx/" + method,
             contentType: "application/json; charset=utf-8",
             async: true,
             dataType: "json",
@@ -376,7 +376,7 @@ function MassiveCall(data) {
         case "MassiveArchive": json_data = JSON.stringify({ "table": table, "where": where }); break;
     }
     return $.ajax({
-        url: "/assets/services/wsWebServices.asmx/" + method,
+        url: "/wsWebServices.asmx/" + method,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         type: "POST",
@@ -441,7 +441,7 @@ function Action(method, table, where, arguments) {
         case "MassiveArchive": json_data = JSON.stringify({ "table": table, "where": where, "arguments": args }); break;
     }
     $.ajax({
-        url: "/assets/services/wsWebServices.asmx/" + method,
+        url: "/wsWebServices.asmx/" + method,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         type: "POST",
