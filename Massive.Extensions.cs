@@ -21,7 +21,7 @@ namespace Massive.Extensions
     #region WebMethods
     public class WebServices
     {
-        public static string Conn = "DefaultConnection";
+        public static string Conn = {ConnectionStringName_WebConfig};
         [WebMethod]
         public String ActiveData(string table, string where, string arguments = "", string order_by = "1", string columns = "*", string template = "")
         {
@@ -190,7 +190,7 @@ namespace Massive.Extensions
         public string[] GetColumns(string table)
         {
             ArrayList obj = new ArrayList();
-            var items = (new Massive.DynamicModel(Conn).Query(String.Format("SELECT COLUMN_NAME FROM FlyBase.information_schema.columns WHERE TABLE_NAME='{0}'", table))).ToList();
+            var items = (new Massive.DynamicModel(Conn).Query(String.Format("SELECT COLUMN_NAME FROM DATA_BASE.information_schema.columns WHERE TABLE_NAME='{0}'", table))).ToList();
             items.ForEach(p =>
             {
                 obj.Add(p.COLUMN_NAME);
@@ -200,7 +200,7 @@ namespace Massive.Extensions
     }
     public class ClassServices
     {
-        public static string Conn = "DefaultConnection";
+        public static string Conn = {ConnectionStringName_WebConfig};
         public List<dynamic> Select(string tbl, string condition, string arguments = null)
         {
             var emptyObject = new object[] { };
