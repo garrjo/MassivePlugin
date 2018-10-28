@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="Massive.Extensions.MassiveExt" CodeBehind="~/App_Code/_Massive/MassiveExtensions.cs" %>
