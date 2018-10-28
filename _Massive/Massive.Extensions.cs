@@ -16,7 +16,7 @@ using System.Web.Services;
 
 namespace Massive.Extensions
 {
-    [WebService(Namespace = "http://wehco.com")]
+    [WebService(Namespace = "http://1001skins.com")]
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Single, IncludeExceptionDetailInFaults = true, AddressFilterMode = AddressFilterMode.Any)]
     [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
     public class MassiveExt : IMassive
