@@ -1,28 +1,28 @@
-﻿using Massive;
-using Newtonsoft.Json;
-using oMassive;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Dynamic;
 using System.Web;
-using System.Web.Services;
 using System.Linq;
 using System.Reflection;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.ServiceModel;
+using Massive;
+using Newtonsoft.Json;
+using System.ServiceModel.Activation;
+using System.Web.Services;
+
 
 namespace Massive.Extensions
 {
-    [WebService(Namespace = "http://www.1001skins.com/")]
-    [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
-    [System.Web.Script.Services.ScriptService]
-    #region WebMethods
-    public class WebServices
+    [WebService(Namespace = "http://1001skins.com")]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Single, IncludeExceptionDetailInFaults = true, AddressFilterMode = AddressFilterMode.Any)]
+    [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
+    public class MassiveExt : IMassive
     {
-        public static string Conn = {ConnectionStringName_WebConfig};
-        [WebMethod]
+        public static string Conn = "DefaultConnection";
+
         public String ActiveData(string table, string where, string arguments = "", string order_by = "1", string columns = "*", string template = "")
         {
             var tbl = new DynamicModel(Conn, table);
@@ -38,20 +38,18 @@ namespace Massive.Extensions
 
             return JsonConvert.SerializeObject(results);
         }
-        [WebMethod]
         public String MassiveSimple(string table, string where)
         {
             var results = (new DynamicModel(Conn, table)).All(where: where);
             var result = JsonConvert.SerializeObject(results);
             return JsonConvert.SerializeObject(results);
         }
-        [WebMethod]
-        public String MassiveAll(string table, string where, string arguments = "", string columns = "*", string orderby = "0")
+        public dynamic MassiveAll(string table, string where, string arguments = "", string columns = "*", string orderby = "0")
         {
             var tbl = new DynamicModel(Conn, table);
-            var Columns = (!columns.Contains("*") ? columns : null);
+            var Columns = (columns != null && !columns.Contains("*") ? columns : null);
             var Where = where;
-            object[] args = (arguments != "" ? JsonConvert.DeserializeObject<object[]>(arguments) : null);
+            object[] args = (arguments != null && arguments != "" ? JsonConvert.DeserializeObject<object[]>(arguments) : null);
             var results = new List<dynamic>();
             if (Columns != null && args != null) results = tbl.All(where: Where, columns: Columns, args: args, orderBy: orderby).ToList();
             if (Columns != null && args == null) results = tbl.All(where: Where, columns: Columns, orderBy: orderby).ToList();
@@ -60,17 +58,20 @@ namespace Massive.Extensions
             else results = tbl.All(where: Where, orderBy: orderby).ToList();
             return JsonConvert.SerializeObject(results);
         }
-        [WebMethod]
-        public String MassiveQuery(string table, string query)
+        public String MassiveQuery(string query, string table = "", string access_id = null)
         {
-            var tbl = new DynamicModel(Conn, table);
-            var results = new List<dynamic>();
-            results = tbl.Query(query).ToList();
-            var result = JsonConvert.SerializeObject(results);
-            LogInsert(table, query, "", "", "", "MassiveQuery");
-            return result;
+            string[] accessKeys = new string[] { "USERKEY1HERE", "USERKEY2HERE" };
+            if (HttpContext.Current.User.Identity.IsAuthenticated && accessKeys.Contains(access_id))
+            {
+                var tbl = (String.IsNullOrEmpty(table) ? new DynamicModel(Conn) : new DynamicModel(Conn, table));
+                var results = new List<dynamic>();
+                results = tbl.Query(query).ToList();
+                var result = JsonConvert.SerializeObject(results);
+                LogInsert(table, query, "", "", "", "MassiveQuery");
+                return result;
+            }
+            return String.Empty;
         }
-        [WebMethod]
         public String MassiveInsert(string table, string arguments = "")
         {
             var tbl = new DynamicModel(Conn, table);
@@ -89,23 +90,23 @@ namespace Massive.Extensions
             LogInsert(table, "", arguments, "", "", "MassiveInsert");
             return result;
         }
-        [WebMethod]
+
         public String MassiveInsertForm(string table, string args)
         {
             var result = MassiveInsert(table, args);
             LogInsert(table, "", args, "", "", "MassiveInsertForm");
             return result;
         }
-        [WebMethod]
-        public String MassiveDelete(dynamic table, string where)
+
+        public String MassiveDelete(string table, string where)
         {
             var tbl = new DynamicModel(Conn, table);
             var result = JsonConvert.SerializeObject(tbl.Delete(where: where));
             LogInsert(table, where, "", "", "", "MassiveDelete");
             return result;
         }
-        [WebMethod]
-        public String MassiveUpdate(dynamic table, string where, string arguments)
+
+        public String MassiveUpdate(string table, string where, string arguments)
         {
             var tbl = new DynamicModel(Conn, table);
             var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(arguments);
@@ -128,8 +129,8 @@ namespace Massive.Extensions
             LogInsert(table, "", arguments, "", "", "MassiveUpdate");
             return result;
         }
-        [WebMethod]
-        public String MassiveArchive(dynamic table, string where, string arguments)
+
+        public String MassiveArchive(string table, string where, string arguments)
         {
             String tblname = table;
             var tbl = new DynamicModel(Conn, table);
@@ -152,7 +153,7 @@ namespace Massive.Extensions
             LogInsert(table, "", arguments, "", "", "MassiveArchive");
             return result;
         }
-        [WebMethod]
+
         public String MassiveForm(string rform, string table)
         {
             NameValueCollection frm = new NameValueCollection();
@@ -172,35 +173,57 @@ namespace Massive.Extensions
             LogInsert(table, "", result, "", "", "MassiveForm");
             return result;
         }
-        public void LogInsert(string _table, string _where, string _arguments, string _columns, string _order, string _transactiontype)
+        public string LogInsert(string table, string where, string arguments, string columns, string order, string transactiontype)
         {
+            string inserted = String.Empty;
             if (ConfigurationManager.AppSettings["EnableDataLog"] == "true")
             {
                 // Get call stack
                 System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
 
                 var tbl = new Massive.DynamicModel(Conn, "FlyBase_DataLog");
-                var _reference = stackTrace.GetFrame(1).GetMethod().Name;
-                var _transaction = stackTrace.GetFrame(1).GetType().Name;
-                var _user = HttpContext.Current.User.Identity.Name.ToString();
-                var obj = new { TimeStamp = DateTime.Now.ToShortDateString(), TableName = _table, Arguments = JsonConvert.SerializeObject(_arguments), Columns = _columns, OrderClause = _order, RequestType = _reference, Reference = HttpContext.Current.Request.UserHostAddress, TransactionType = _transaction };
-                tbl.Insert(obj);
+                var reference = stackTrace.GetFrame(1).GetMethod().Name;
+                var transaction = stackTrace.GetFrame(1).GetType().Name;
+                var user = HttpContext.Current.User.Identity.Name.ToString();
+                var obj = new { TimeStamp = DateTime.Now.ToShortDateString(), TableName = table, Arguments = JsonConvert.SerializeObject(arguments), Columns = columns, OrderClause = order, RequestType = reference, Reference = HttpContext.Current.Request.UserHostAddress, TransactionType = transaction };
+                inserted = tbl.Insert(obj);
             }
+            return JsonConvert.SerializeObject(inserted);
         }
         public string[] GetColumns(string table)
         {
             ArrayList obj = new ArrayList();
-            var items = (new Massive.DynamicModel(Conn).Query(String.Format("SELECT COLUMN_NAME FROM DATA_BASE.information_schema.columns WHERE TABLE_NAME='{0}'", table))).ToList();
+            var items = (new Massive.DynamicModel(Conn).Query(String.Format("SELECT COLUMN_NAME FROM FlyBase.information_schema.columns WHERE TABLE_NAME='{0}'", table))).ToList();
             items.ForEach(p =>
             {
                 obj.Add(p.COLUMN_NAME);
             });
             return ((IEnumerable)obj).Cast<object>().Select(x => x.ToString()).ToArray();
         }
+        public string[] GetTables()
+        {
+            ArrayList obj = new ArrayList();
+            var items = (new Massive.DynamicModel(Conn).Query("SELECT TABLE_NAME FROM FlyBase.information_schema.tables WHERE TABLE_TYPE='BASE TABLE' OR TABLE_TYPE='VIEW' ORDER BY TABLE_NAME ASC")).ToList();
+            items.ForEach(p =>
+            {
+                obj.Add(p.TABLE_NAME);
+            });
+            return ((IEnumerable)obj).Cast<object>().Select(x => x.ToString()).ToArray();
+        }
+        public string[] GetViews()
+        {
+            ArrayList obj = new ArrayList();
+            var items = (new Massive.DynamicModel(Conn).Query("SELECT TABLE_NAME FROM FlyBase.information_schema.tables WHERE TABLE_TYPE='VIEW' ORDER BY TABLE_NAME ASC")).ToList();
+            items.ForEach(p =>
+            {
+                obj.Add(p.TABLE_NAME);
+            });
+            return ((IEnumerable)obj).Cast<object>().Select(x => x.ToString()).ToArray();
+        }
     }
     public class ClassServices
     {
-        public static string Conn = {ConnectionStringName_WebConfig};
+        public static string Conn = "DefaultConnection";
         public List<dynamic> Select(string tbl, string condition, string arguments = null)
         {
             var emptyObject = new object[] { };
@@ -235,32 +258,6 @@ namespace Massive.Extensions
             var tbl = new DynamicModel(Conn, table);
             var obj = new { EndDate = DateTime.Now };
             return JsonConvert.SerializeObject(tbl.Update(obj, key));
-        }
-    }
-    #endregion
-    public static class Data
-    {
-        public static DataTable ToDataTable(this List<ExpandoObject> list, string tableName)
-        {
-            if (list == null || list.Count == 0) return null;
-            //build columns
-            var props = (IDictionary<string, object>)list[0];
-            var t = new DataTable(tableName);
-            foreach (var prop in props)
-            {
-                t.Columns.Add(new DataColumn(prop.Key, prop.Value.GetType()));
-            }
-            //add rows
-            foreach (var row in list)
-            {
-                var data = t.NewRow();
-                foreach (var prop in (IDictionary<string, object>)row)
-                {
-                    data[prop.Key] = prop.Value;
-                }
-                t.Rows.Add(data);
-            }
-            return t;
         }
     }
     public static class Ext
