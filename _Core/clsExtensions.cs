@@ -7,7 +7,7 @@ using System.Web;
 /// <summary>
 /// Summary description for clsExtensions
 /// </summary>
-namespace FlyBase
+namespace Massive
 {
     public static class Extensions
     {
