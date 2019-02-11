@@ -1,3 +1,6 @@
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/84a41e7cb67f4797b1534f0cda47e149)](https://app.codacy.com/app/garrjo/MassivePlugin?utm_source=github.com&utm_medium=referral&utm_content=garrjo/MassivePlugin&utm_campaign=Badge_Grade_Settings)
+
 <h2><strong>Massive Plugin </strong></h2>
 <h3>Documentation/Usage</h3>
 <p>
